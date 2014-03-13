@@ -29,11 +29,11 @@ void setup() {
 
 void loop() 
 {
-    setIsOpen();
+  setIsOpen();
     
-    int resetBtnVal = analogRead(resetBtnPin);
+  int resetBtnVal = analogRead(resetBtnPin);
       
-    if(resetBtnVal > 700){
+  if(resetBtnVal > 700){
       reset();
     }
 
@@ -48,7 +48,7 @@ void loop()
       
       Serial.println("end");
       
-      segCounter = 0;
+      segCounter = 999;
       isOpen = 0;  
   }
 

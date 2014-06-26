@@ -54,11 +54,14 @@ void loop()
   if( segCounter == segCountMax) 
   {
       Serial.println(0);
-      int i = 1;  
-      for (i = 0; i < segCountMax; i++) 
+      
+      int segArrayZero = (segArray[1]-start)/2+1;
+      Serial.println(segArrayZero);
+      
+      for (int i = 1; i < segCountMax; i++) 
       { 
-        unsigned long first = segArray[i] - start;      
-        Serial.println(first); 
+        unsigned long val = segArray[i] - start;      
+        Serial.println(val); 
       }
       
       Serial.println("end");

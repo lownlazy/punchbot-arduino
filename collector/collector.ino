@@ -22,8 +22,8 @@ int lastOpenState = 0;
 void setup() {
  pinMode(triggerPin, INPUT);
   pinMode(resetBtnPin, INPUT);
-  attachInterrupt(0,  encoderInterupt, CHANGE);
- attachInterrupt(1,  encoderInterupt, CHANGE);
+  attachInterrupt(0,  encoderInterupt, RISING);
+ //attachInterrupt(1,  encoderInterupt, CHANGE);
 
  Serial.begin(9600);
 }

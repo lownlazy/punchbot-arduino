@@ -8,8 +8,8 @@ int triggerPin = 3;
 
 //encoder vars
 volatile int segCounter = 0; 
-volatile int segCountMax = 100; 
-volatile unsigned long segArray[100];
+volatile int segCountMax = 50; 
+volatile unsigned long segArray[50];
 volatile int segPos[100];
 volatile int pos = 0;
 unsigned long start = 550;
@@ -23,7 +23,6 @@ void setup() {
  pinMode(triggerPin, INPUT);
   pinMode(resetBtnPin, INPUT);
   attachInterrupt(0,  encoderInterupt, RISING);
- //attachInterrupt(1,  encoderInterupt, CHANGE);
 
  Serial.begin(9600);
 }
@@ -54,11 +53,9 @@ void loop()
   if( segCounter == segCountMax) 
   {
       Serial.println(0);
-      
-      int segArrayZero = (segArray[1]-start)/2+1;
-      Serial.println(segArrayZero);
-      
-      for (int i = 1; i < segCountMax; i++) 
+      //remember: the time between 0 and index[0] is unknown and
+      //should never be used for a calculation
+      for (int i = 0; i < segCountMax; i++) 
       { 
         unsigned long val = segArray[i] - start;      
         Serial.println(val); 

@@ -8,10 +8,14 @@ int triggerPin = 3;
 
 //encoder vars
 volatile int segCounter = 0; 
-volatile int segCountMax = 150; 
-volatile unsigned long segArray[150];
-volatile int segPos[150];
-volatile int pos = 0;
+volatile int segCountMax = 50; 
+volatile unsigned long segArray0[50];
+volatile unsigned long segArray1[50];
+volatile unsigned long segArray2[50];
+volatile unsigned long segArray3[50];
+volatile int segPos[100];
+unsigned long start = 550;
+//volatile int pos = 0;
 
 //vars
 volatile int isOpen = 0;
@@ -21,8 +25,10 @@ int lastOpenState = 0;
 void setup() {
  pinMode(triggerPin, INPUT);
   pinMode(resetBtnPin, INPUT);
-  attachInterrupt(0,  encoderInterupt, CHANGE);
- //attachInterrupt(1,  encoderInterupt, CHANGE);
+  attachInterrupt(0,  encoderInterupt0R, RISING);
+  attachInterrupt(0,  encoderInterupt0F, FALLING);
+  attachInterrupt(1,  encoderInterupt1R, RISING);
+  attachInterrupt(1,  encoderInterupt1F, FALLING);
  setup_T2();
  Serial.begin(9600);
 }
@@ -30,20 +36,39 @@ void setup() {
 void loop() 
 {
   setIsOpen();
+  
+  if(isOpen == 0 )
+  {
+    start = micros();
     
+    if(segCounter == 999)
+    {
+       Serial.println("reset");
+    }
+    
+    //pos=0;
+    segCounter=0;    
+  }
+  
   int resetBtnVal = analogRead(resetBtnPin);
-      
+  
   if(resetBtnVal > 700){
       reset();
     }
 
   if( segCounter == segCountMax) 
   {
-      int i = 1;  
-      for (i = 1; i < segCountMax; i++) 
+      Serial.println(0);
+      //remember: the time between 0 and index[0] is unknown and
+      //should never be used for a calculation
+      for (int i = 0; i < segCountMax; i++) 
       { 
-        unsigned long first = segArray[i-1] - segArray[0];      
-        Serial.println(first); 
+        //todo:
+        //find array with soonest acceleration loss
+        //return that array 
+        
+        //unsigned long val = segArray[i] - start;      
+        //Serial.println(val); 
       }
       
       Serial.print("end-");
@@ -53,17 +78,27 @@ void loop()
       isOpen = 0;  
   }
 
-  delay(500);
+  //delay(50);
 } 
+
+// helpers -------------------
 
 void reset()
 {
-   pos=0;
+   //pos=0;
    segCounter=0;
    Serial.println("reset");
 }
 
-void encoderInterupt()
+void setIsOpen()
+{
+  float openVal = analogRead(startContactPin);
+  isOpen = openVal<200?1:0;
+}
+
+//interupts--------------------
+
+void encoderInterupt0R()
 {
   if(segCounter < segCountMax) 
   {
@@ -73,16 +108,29 @@ void encoderInterupt()
   } 
 }
 
-void setIsOpen()
+void encoderInterupt0F()
 {
-  int openVal = analogRead(startContactPin);
-  openState = openVal<100?1:0;
-
-  if (openState != lastOpenState) 
+  if(segCounter < segCountMax) 
   {
-    isOpen = openState; 
-  }
-  lastOpenState = openState;
+     segArray1[segCounter] = micros();
+  } 
 }
+
+void encoderInterupt1R()
+{
+  if(segCounter < segCountMax) 
+  {
+     segArray2[segCounter] = micros();
+  } 
+}
+
+void encoderInterupt1F()
+{
+  if(segCounter < segCountMax) 
+  {
+     segArray3[segCounter] = micros();
+  } 
+}
+
 
 

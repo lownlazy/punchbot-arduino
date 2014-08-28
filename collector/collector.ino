@@ -23,7 +23,7 @@ void setup() {
   pinMode(resetBtnPin, INPUT);
   attachInterrupt(0,  encoderInterupt, CHANGE);
  //attachInterrupt(1,  encoderInterupt, CHANGE);
-
+ setup_T2();
  Serial.begin(9600);
 }
 
@@ -46,7 +46,8 @@ void loop()
         Serial.println(first); 
       }
       
-      Serial.println("end");
+      Serial.print("end-");
+      Serial.println(pos);
       
       segCounter = 999;
       isOpen = 0;  
@@ -66,10 +67,10 @@ void encoderInterupt()
 {
   if(segCounter < segCountMax) 
   {
-     segArray[segCounter] = micros();
+     segArray[segCounter] = get_T2_count(); //micros();
      segCounter++;
+     pos++;
   } 
-  pos++;
 }
 
 void setIsOpen()
@@ -82,6 +83,6 @@ void setIsOpen()
     isOpen = openState; 
   }
   lastOpenState = openState;
- }
+}
 
 

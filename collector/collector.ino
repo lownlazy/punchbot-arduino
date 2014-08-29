@@ -9,26 +9,25 @@ int triggerPin = 3;
 //encoder vars
 volatile int segCounter = 0; 
 volatile int segCountMax = 50; 
-volatile unsigned long segArray0[50];
-volatile unsigned long segArray1[50];
-volatile unsigned long segArray2[50];
-volatile unsigned long segArray3[50];
+volatile float segArray0[50];
+volatile float segArray1[50];
+volatile float segArray2[50];
+volatile float segArray3[50];
 volatile int segPos[100];
-unsigned long start = 550;
-//volatile int pos = 0;
+unsigned long start = 0;
 
 //vars
 volatile int isOpen = 0;
-int openState = 0;    
-int lastOpenState = 0;  
+//int openState = 0;    
+//int lastOpenState = 0;  
 
 void setup() {
  pinMode(triggerPin, INPUT);
   pinMode(resetBtnPin, INPUT);
   attachInterrupt(0,  encoderInterupt0R, RISING);
-  attachInterrupt(0,  encoderInterupt0F, FALLING);
-  attachInterrupt(1,  encoderInterupt1R, RISING);
-  attachInterrupt(1,  encoderInterupt1F, FALLING);
+  //attachInterrupt(0,  encoderInterupt0F, FALLING);
+  //attachInterrupt(1,  encoderInterupt1R, RISING);
+  //attachInterrupt(1,  encoderInterupt1F, FALLING);
  setup_T2();
  Serial.begin(9600);
 }
@@ -39,15 +38,15 @@ void loop()
   
   if(isOpen == 0 )
   {
-    start = micros();
+    start = get_T2_micros(); //micros();
     
     if(segCounter == 999)
     {
        Serial.println("reset");
     }
     
-    //pos=0;
     segCounter=0;    
+    reset_T2();
   }
   
   int resetBtnVal = analogRead(resetBtnPin);
@@ -67,15 +66,15 @@ void loop()
         //find array with soonest acceleration loss
         //return that array 
         
-        //unsigned long val = segArray[i] - start;      
-        //Serial.println(val); 
+        float val = segArray0[i] - start;      
+        Serial.println(val); 
       }
       
-      Serial.print("end-");
-      Serial.println(pos);
+      Serial.print("end");
       
       segCounter = 999;
       isOpen = 0;  
+      reset_T2();
   }
 
   //delay(50);
@@ -85,9 +84,9 @@ void loop()
 
 void reset()
 {
-   //pos=0;
    segCounter=0;
    Serial.println("reset");
+   reset_T2();
 }
 
 void setIsOpen()
@@ -102,13 +101,12 @@ void encoderInterupt0R()
 {
   if(segCounter < segCountMax) 
   {
-     segArray[segCounter] = get_T2_count(); //micros();
+     segArray0[segCounter] = get_T2_micros(); //micros();
      segCounter++;
-     pos++;
   } 
 }
 
-void encoderInterupt0F()
+/*void encoderInterupt0F()
 {
   if(segCounter < segCountMax) 
   {
@@ -131,6 +129,6 @@ void encoderInterupt1F()
      segArray3[segCounter] = micros();
   } 
 }
-
+*/
 
 

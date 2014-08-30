@@ -8,12 +8,12 @@ int triggerPin = 3;
 
 //encoder vars
 volatile int segCounter = 0; 
-volatile int segCountMax = 50; 
-volatile float segArray0[50];
-volatile float segArray1[50];
-volatile float segArray2[50];
-volatile float segArray3[50];
-volatile int segPos[100];
+volatile int segCountMax = 100; 
+volatile float segArray0[100];
+//volatile float segArray1[50];
+//volatile float segArray2[50];
+//volatile float segArray3[50];
+//volatile int segPos[100];
 unsigned long start = 0;
 
 //vars
@@ -24,7 +24,8 @@ volatile int isOpen = 0;
 void setup() {
  pinMode(triggerPin, INPUT);
   pinMode(resetBtnPin, INPUT);
-  attachInterrupt(0,  encoderInterupt0R, RISING);
+  attachInterrupt(0,  encoderInterupt0R, CHANGE);
+  attachInterrupt(1,  encoderInterupt0R, CHANGE);
   //attachInterrupt(0,  encoderInterupt0F, FALLING);
   //attachInterrupt(1,  encoderInterupt1R, RISING);
   //attachInterrupt(1,  encoderInterupt1F, FALLING);
@@ -67,10 +68,12 @@ void loop()
         //return that array 
         
         float val = segArray0[i] - start;      
-        Serial.println(val); 
+        Serial.println(val);
+       delay(10);
+ 
       }
       
-      Serial.print("end");
+      Serial.println("end");
       
       segCounter = 999;
       isOpen = 0;  

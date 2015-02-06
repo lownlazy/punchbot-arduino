@@ -7,47 +7,35 @@ int reactionPin = 13;
 int triggerPin = 3;
 
 //encoder vars
-volatile int segCounter = 0; 
-volatile int segCountMax = 100; 
-volatile float segArray0[100];
-//volatile float segArray1[50];
-//volatile float segArray2[50];
-//volatile float segArray3[50];
-//volatile int segPos[100];
+volatile int riseCounter = 0; 
+volatile int fallCounter = 0; 
+volatile int countMax = 50; 
+volatile float riseArray[50];
+volatile float fallArray[50];
 unsigned long start = 0;
+volatile boolean isArmOpen = true;
 
-//vars
-volatile int isOpen = 0;
-//int openState = 0;    
-//int lastOpenState = 0;  
 
 void setup() {
  pinMode(triggerPin, INPUT);
   pinMode(resetBtnPin, INPUT);
-  attachInterrupt(0,  encoderInterupt0R, CHANGE);
-  attachInterrupt(1,  encoderInterupt0R, CHANGE);
-  //attachInterrupt(0,  encoderInterupt0F, FALLING);
-  //attachInterrupt(1,  encoderInterupt1R, RISING);
-  //attachInterrupt(1,  encoderInterupt1F, FALLING);
+  attachInterrupt(0,  encoderInteruptR, CHANGE);
+  attachInterrupt(1,  encoderInteruptF, CHANGE);
+
  setup_T2();
  Serial.begin(9600);
 }
 
 void loop() 
 {
-  setIsOpen();
+  setIsArmOpen();
   
-  if(isOpen == 0 )
-  {
-    start = get_T2_micros(); //micros();
-    
-    if(segCounter == 999)
+  if(isArmOpen == true ) //start contact strip
+  { 
+    if(riseCounter == 999)
     {
-       Serial.println("reset");
-    }
-    
-    segCounter=0;    
-    reset_T2();
+      //reset();
+    }    
   }
   
   int resetBtnVal = analogRead(resetBtnPin);
@@ -56,82 +44,77 @@ void loop()
       reset();
     }
 
-  if( segCounter == segCountMax) 
+  if( riseCounter == countMax && fallCounter == countMax) 
   {
-      Serial.println(0);
+      //Serial.println(0);
       //remember: the time between 0 and index[0] is unknown and
       //should never be used for a calculation
-      for (int i = 0; i < segCountMax; i++) 
-      { 
-        //todo:
-        //find array with soonest acceleration loss
-        //return that array 
-        
-        float val = segArray0[i] - start;      
+      
+      Serial.println("rise-start");
+      for (int i = 0; i < countMax; i++) 
+      {     
+        float val = riseArray[i] - riseArray[0];   
         Serial.println(val);
        delay(10);
- 
       }
+      Serial.println("rise-end");
       
-      Serial.println("end");
+      Serial.println("fall-start");
+      for (int j = 0; j < countMax; j++) 
+      {     
+        float val1 = fallArray[j] - fallArray[0];   
+        Serial.println(val1);
+       delay(10);
+      }
+      Serial.println("fall-end");
       
-      segCounter = 999;
-      isOpen = 0;  
-      reset_T2();
+      riseCounter = 999;
+
   }
 
-  //delay(50);
+  
 } 
 
 // helpers -------------------
 
 void reset()
 {
-   segCounter=0;
-   Serial.println("reset");
-   reset_T2();
+if(riseCounter == 999)
+{
+     riseCounter=0;
+     fallCounter=0;
+     Serial.println("reset (method)");
+     reset_T2();
+}
 }
 
-void setIsOpen()
+void setIsArmOpen()
 {
   float openVal = analogRead(startContactPin);
-  isOpen = openVal<200?1:0;
+  isArmOpen = openVal<200?true:false;
 }
 
 //interupts--------------------
 
-void encoderInterupt0R()
+void encoderInteruptR()
 {
-  if(segCounter < segCountMax) 
+  if(riseCounter < countMax) 
   {
-     segArray0[segCounter] = get_T2_micros(); //micros();
-     segCounter++;
+     riseArray[riseCounter] = get_T2_micros()*10; //micros();
+     riseCounter++;
   } 
 }
 
-/*void encoderInterupt0F()
+void encoderInteruptF()
 {
-  if(segCounter < segCountMax) 
+  if(fallCounter < countMax) 
   {
-     segArray1[segCounter] = micros();
+     fallArray[fallCounter] = get_T2_micros(); //micros();
+     fallCounter++;
   } 
 }
 
-void encoderInterupt1R()
-{
-  if(segCounter < segCountMax) 
-  {
-     segArray2[segCounter] = micros();
-  } 
-}
 
-void encoderInterupt1F()
-{
-  if(segCounter < segCountMax) 
-  {
-     segArray3[segCounter] = micros();
-  } 
-}
-*/
+
 
 

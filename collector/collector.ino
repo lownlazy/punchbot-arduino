@@ -3,9 +3,9 @@ int resetBtnPin = 1;
 int startContactPin = 3;
 
 volatile int counter = 0;
-volatile int countMax =300;
-volatile float array[300];
-volatile float x = 0;
+volatile int countMax =250;
+volatile unsigned long array[250];
+volatile unsigned long x = 0;
 volatile boolean isArmOpen = true;
 
 
@@ -27,10 +27,11 @@ void loop()
 {
     setIsArmOpen();
   
-  if(isArmOpen == false && counter == 999) //start contact strip
+  if(counter == 999 && isArmOpen == false) //start contact strip
   { 
       reset();    
   }
+  
   
   int resetBtnVal = analogRead(1);
 
@@ -43,9 +44,10 @@ void loop()
   {
     for (int i = 0; i < countMax; i++)
     {
-      Serial.println(array[i]);
-      delay(10);
+      unsigned long val = array[i];
+      Serial.println(val);
     }
+
     Serial.println("end");
     counter=999;
   }
@@ -55,24 +57,27 @@ void encoderInterupt()
 {
   if (counter < countMax)
   {
-    x = get_T2_count();    
-    array[counter] = x;
+    //x = get_T2_count();   
+    array[counter] = micros();
     counter++;
   }
 }
 
 void reset()
 {
+  Serial.println("reset");
+  
   if(counter == 999)
   {
-     counter=0;
-     Serial.println("reset");
+     counter=0;   
      reset_T2();
    }
 }
 
 void setIsArmOpen()
 {
-  float openVal = analogRead(startContactPin);
+  int openVal = analogRead(startContactPin);
   isArmOpen = openVal<200?true:false;
 }
+
+
